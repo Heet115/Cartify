@@ -20,6 +20,7 @@
             android:layout_height="64dp"
             android:background="@drawable/bg_gradient_primary"
             android:paddingTop="8dp"
+            app:logo="@drawable/cartify_logo"
             app:navigationIconTint="@color/text_on_primary"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:titleTextColor="@color/text_on_primary" />
