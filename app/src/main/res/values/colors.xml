@@ -39,6 +39,7 @@
     <color name="surface_light">#FAFAFA</color>
     <color name="surface_medium">#F5F5F5</color>
     <color name="surface_dark">#EEEEEE</color>
+    <color name="background_color">@color/surface_light</color>
     
     <!-- Text Colors -->
     <color name="text_primary">#212121</color>

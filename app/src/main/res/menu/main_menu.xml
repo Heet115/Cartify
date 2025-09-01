@@ -2,12 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Always visible items -->
-    <item
-        android:id="@+id/action_search"
-        android:icon="@drawable/ic_search"
-        android:title="Search"
-        app:showAsAction="always" />
+    <!-- Always visible items removed: search and cart -->
 
     <item
         android:id="@+id/action_favorites"

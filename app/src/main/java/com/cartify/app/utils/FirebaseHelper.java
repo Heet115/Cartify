@@ -51,9 +51,17 @@ public class FirebaseHelper {
         return getCurrentUser() != null;
     }
 
-    // Realtime Database reference paths (for products only)
+    // Realtime Database reference paths
     public static DatabaseReference getProductsRef() {
         return getRealtimeDatabase().child("Items");
+    }
+
+    public static DatabaseReference getCategoriesRef() {
+        return getRealtimeDatabase().child("Category");
+    }
+
+    public static DatabaseReference getBannersRef() {
+        return getRealtimeDatabase().child("Banner");
     }
 
     // Firestore collection references (for user data, cart, orders)
