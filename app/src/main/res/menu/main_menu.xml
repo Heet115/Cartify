@@ -2,15 +2,46 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- Always visible items -->
     <item
-        android:id="@+id/action_cart"
-        android:icon="@drawable/ic_shopping_cart"
-        android:title="Cart"
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search"
+        android:title="Search"
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/action_favorites"
+        android:icon="@drawable/ic_heart_outline"
+        android:title="Favorites"
+        app:showAsAction="ifRoom" />
+
+    <!-- Overflow menu items -->
+    <item
         android:id="@+id/action_orders"
+        android:icon="@drawable/ic_receipt"
         android:title="My Orders"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_profile"
+        android:icon="@drawable/ic_person"
+        android:title="Profile"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_help"
+        android:title="Help &amp; Support"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_about"
+        android:title="About"
         app:showAsAction="never" />
 
     <item

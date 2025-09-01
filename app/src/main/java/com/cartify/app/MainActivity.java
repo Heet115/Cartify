@@ -46,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
         // Initialize UserDataHelper
         userDataHelper = new UserDataHelper(this);
 
+        // Handle system window insets for proper padding
+        getWindow().setStatusBarColor(getResources().getColor(R.color.primary_color));
+        
         initViews();
         setupRecyclerView();
         setupBottomNavigation();
@@ -70,15 +73,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupBottomNavigation() {
+        bottomNavigation.setSelectedItemId(R.id.nav_home);
         bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
                 return true;
             } else if (itemId == R.id.nav_cart) {
                 startActivity(new Intent(MainActivity.this, CartActivity.class));
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_orders) {
+                startActivity(new Intent(MainActivity.this, OrdersActivity.class));
+                finish();
                 return true;
             } else if (itemId == R.id.nav_profile) {
                 startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+                finish();
                 return true;
             }
             return false;
@@ -125,11 +135,34 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
-        if (itemId == R.id.action_cart) {
+        if (itemId == R.id.action_search) {
+            // TODO: Implement search functionality
+            Toast.makeText(this, "Search feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (itemId == R.id.action_cart) {
             startActivity(new Intent(this, CartActivity.class));
+            return true;
+        } else if (itemId == R.id.action_favorites) {
+            // TODO: Implement favorites functionality
+            Toast.makeText(this, "Favorites feature coming soon!", Toast.LENGTH_SHORT).show();
             return true;
         } else if (itemId == R.id.action_orders) {
             startActivity(new Intent(this, OrdersActivity.class));
+            return true;
+        } else if (itemId == R.id.action_profile) {
+            startActivity(new Intent(this, ProfileActivity.class));
+            return true;
+        } else if (itemId == R.id.action_settings) {
+            // TODO: Implement settings functionality
+            Toast.makeText(this, "Settings feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (itemId == R.id.action_help) {
+            // TODO: Implement help functionality
+            Toast.makeText(this, "Help & Support feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (itemId == R.id.action_about) {
+            // TODO: Implement about functionality
+            Toast.makeText(this, "About feature coming soon!", Toast.LENGTH_SHORT).show();
             return true;
         } else if (itemId == R.id.action_logout) {
             // Logout from both Firebase and local storage

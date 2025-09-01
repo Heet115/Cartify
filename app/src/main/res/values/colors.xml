@@ -1,8 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Base Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="primary_color">#FF6200EE</color>
-    <color name="primary_dark">#FF3700B3</color>
-    <color name="accent_color">#FF03DAC5</color>
+    
+    <!-- Sky Blue Palette -->
+    <color name="sky_blue_50">#E3F2FD</color>
+    <color name="sky_blue_100">#BBDEFB</color>
+    <color name="sky_blue_200">#90CAF9</color>
+    <color name="sky_blue_300">#64B5F6</color>
+    <color name="sky_blue_400">#42A5F5</color>
+    <color name="sky_blue_500">#2196F3</color>
+    <color name="sky_blue_600">#1E88E5</color>
+    <color name="sky_blue_700">#1976D2</color>
+    <color name="sky_blue_800">#1565C0</color>
+    <color name="sky_blue_900">#0D47A1</color>
+    
+    <!-- Glue/Amber Palette -->
+    <color name="glue_50">#FFF8E1</color>
+    <color name="glue_100">#FFECB3</color>
+    <color name="glue_200">#FFE082</color>
+    <color name="glue_300">#FFD54F</color>
+    <color name="glue_400">#FFCA28</color>
+    <color name="glue_500">#FFC107</color>
+    <color name="glue_600">#FFB300</color>
+    <color name="glue_700">#FFA000</color>
+    <color name="glue_800">#FF8F00</color>
+    <color name="glue_900">#FF6F00</color>
+    
+    <!-- Primary Theme Colors -->
+    <color name="primary_color">@color/sky_blue_600</color>
+    <color name="primary_dark">@color/sky_blue_800</color>
+    <color name="primary_light">@color/sky_blue_300</color>
+    <color name="accent_color">@color/glue_500</color>
+    <color name="accent_light">@color/glue_300</color>
+    
+    <!-- Surface Colors -->
+    <color name="surface_light">#FAFAFA</color>
+    <color name="surface_medium">#F5F5F5</color>
+    <color name="surface_dark">#EEEEEE</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+    <color name="text_on_primary">@color/white</color>
+    <color name="text_on_accent">#212121</color>
+    
+    <!-- Status Colors -->
+    <color name="success_color">#4CAF50</color>
+    <color name="error_color">#F44336</color>
+    <color name="warning_color">#FF9800</color>
+    
+    <!-- Gradient Colors -->
+    <color name="gradient_start">@color/sky_blue_400</color>
+    <color name="gradient_end">@color/sky_blue_700</color>
+    
+    <!-- Shadow Colors -->
+    <color name="shadow_light">#1A000000</color>
+    <color name="shadow_medium">#33000000</color>
 </resources>

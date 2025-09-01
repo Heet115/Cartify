@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cartify.app.adapters.CartAdapter;
 import com.cartify.app.models.CartItem;
 import com.cartify.app.utils.FirebaseHelper;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
     private TextView tvTotalAmount, tvEmptyCart;
     private Button btnCheckout;
     private ProgressBar progressBar;
+    private BottomNavigationView bottomNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         initViews();
         setupToolbar();
         setupRecyclerView();
+        setupBottomNavigation();
         loadCartItems();
     }
 
@@ -50,6 +53,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         tvEmptyCart = findViewById(R.id.tvEmptyCart);
         btnCheckout = findViewById(R.id.btnCheckout);
         progressBar = findViewById(R.id.progressBar);
+        bottomNavigation = findViewById(R.id.bottomNavigation);
         
         cartItems = new ArrayList<>();
         
@@ -59,16 +63,87 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setTitle("Shopping Cart");
         
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        toolbar.setNavigationOnClickListener(v -> {
+            startActivity(new Intent(CartActivity.this, MainActivity.class));
+            finish();
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        getMenuInflater().inflate(R.menu.cart_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull android.view.MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            startActivity(new Intent(CartActivity.this, MainActivity.class));
+            finish();
+            return true;
+        } else if (itemId == R.id.action_clear_cart) {
+            clearCart();
+            return true;
+        } else if (itemId == R.id.action_save_for_later) {
+            Toast.makeText(this, "Save for later feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (itemId == R.id.action_share_cart) {
+            Toast.makeText(this, "Share cart feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (itemId == R.id.action_continue_shopping) {
+            startActivity(new Intent(this, MainActivity.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void clearCart() {
+        String userId = FirebaseHelper.getCurrentUserId();
+        if (userId == null) return;
+
+        FirebaseHelper.getUserCartCollection(userId)
+            .get()
+            .addOnSuccessListener(querySnapshot -> {
+                for (com.google.firebase.firestore.QueryDocumentSnapshot document : querySnapshot) {
+                    document.getReference().delete();
+                }
+                Toast.makeText(this, "Cart cleared successfully", Toast.LENGTH_SHORT).show();
+            })
+            .addOnFailureListener(e -> 
+                Toast.makeText(this, "Failed to clear cart", Toast.LENGTH_SHORT).show());
     }
 
     private void setupRecyclerView() {
         cartAdapter = new CartAdapter(this, cartItems, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(cartAdapter);
+    }
+
+    private void setupBottomNavigation() {
+        bottomNavigation.setSelectedItemId(R.id.nav_cart);
+        bottomNavigation.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                startActivity(new Intent(CartActivity.this, MainActivity.class));
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_cart) {
+                return true; // Already on cart
+            } else if (itemId == R.id.nav_orders) {
+                startActivity(new Intent(CartActivity.this, OrdersActivity.class));
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(CartActivity.this, ProfileActivity.class));
+                finish();
+                return true;
+            }
+            return false;
+        });
     }
 
     private void loadCartItems() {

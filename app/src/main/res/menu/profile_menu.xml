@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_edit_profile"
+        android:icon="@drawable/ic_edit"
+        android:title="Edit Profile"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_save_profile"
+        android:icon="@drawable/ic_save"
+        android:title="Save"
+        android:visible="false"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_change_password"
+        android:title="Change Password"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_privacy_settings"
+        android:title="Privacy Settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_notification_settings"
+        android:title="Notifications"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_delete_account"
+        android:title="Delete Account"
+        app:showAsAction="never" />
+
+</menu>

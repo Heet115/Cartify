@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_clear_cart"
+        android:icon="@drawable/ic_delete"
+        android:title="Clear Cart"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_save_for_later"
+        android:icon="@drawable/ic_save"
+        android:title="Save for Later"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_share_cart"
+        android:title="Share Cart"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_continue_shopping"
+        android:title="Continue Shopping"
+        app:showAsAction="never" />
+
+</menu>

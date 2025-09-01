@@ -68,6 +68,28 @@ public class OrderDetailActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        getMenuInflater().inflate(R.menu.orders_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@androidx.annotation.NonNull android.view.MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_track_order) {
+            Toast.makeText(this, "Track order feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (itemId == R.id.action_reorder) {
+            Toast.makeText(this, "Reorder feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (itemId == R.id.action_download_invoice) {
+            Toast.makeText(this, "Download invoice feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void setupRecyclerView() {
         itemAdapter = new OrderItemAdapter(this, new ArrayList<>());
         recyclerViewItems.setLayoutManager(new LinearLayoutManager(this));

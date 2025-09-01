@@ -8,11 +8,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.cartify.app.models.UserProfile;
 import com.cartify.app.utils.FirebaseHelper;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import android.content.Intent;
 
 /**
  * Profile Activity for managing user profile data in Firestore
@@ -24,6 +27,7 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText etName, etPhone, etAddress;
     private Button btnEditProfile, btnSaveProfile, btnCancelEdit;
     private ProgressBar progressBar;
+    private BottomNavigationView bottomNavigation;
     
     private UserProfile currentProfile;
     private boolean isEditMode = false;
@@ -35,6 +39,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         initViews();
         setupToolbar();
+        setupBottomNavigation();
         loadUserProfile();
     }
 
@@ -57,6 +62,7 @@ public class ProfileActivity extends AppCompatActivity {
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
         btnCancelEdit = findViewById(R.id.btnCancelEdit);
         progressBar = findViewById(R.id.progressBar);
+        bottomNavigation = findViewById(R.id.bottomNavigation);
 
         // Set click listeners
         btnEditProfile.setOnClickListener(v -> enableEditMode());
@@ -70,10 +76,90 @@ public class ProfileActivity extends AppCompatActivity {
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setTitle("Profile");
         
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        toolbar.setNavigationOnClickListener(v -> {
+            startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+            finish();
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        getMenuInflater().inflate(R.menu.profile_menu, menu);
+        updateMenuVisibility(menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+            finish();
+            return true;
+        } else if (itemId == R.id.action_edit_profile) {
+            enableEditMode();
+            invalidateOptionsMenu(); // Refresh menu
+            return true;
+        } else if (itemId == R.id.action_save_profile) {
+            saveProfile();
+            return true;
+        } else if (itemId == R.id.action_change_password) {
+            Toast.makeText(this, "Change password feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (itemId == R.id.action_privacy_settings) {
+            Toast.makeText(this, "Privacy settings feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (itemId == R.id.action_notification_settings) {
+            Toast.makeText(this, "Notification settings feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (itemId == R.id.action_delete_account) {
+            Toast.makeText(this, "Delete account feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+        finish();
+        return true;
+    }
+
+    private void updateMenuVisibility(android.view.Menu menu) {
+        android.view.MenuItem editItem = menu.findItem(R.id.action_edit_profile);
+        android.view.MenuItem saveItem = menu.findItem(R.id.action_save_profile);
+        
+        if (editItem != null && saveItem != null) {
+            editItem.setVisible(!isEditMode);
+            saveItem.setVisible(isEditMode);
+        }
+    }
+
+    private void setupBottomNavigation() {
+        bottomNavigation.setSelectedItemId(R.id.nav_profile);
+        bottomNavigation.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_cart) {
+                startActivity(new Intent(ProfileActivity.this, CartActivity.class));
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_orders) {
+                startActivity(new Intent(ProfileActivity.this, OrdersActivity.class));
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                return true; // Already on profile
+            }
+            return false;
+        });
     }
 
     private void loadUserProfile() {
@@ -191,6 +277,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
     
     private void setDisplayMode() {
+        isEditMode = false;
         // Show display views
         findViewById(R.id.llDisplayMode).setVisibility(View.VISIBLE);
         findViewById(R.id.llEditMode).setVisibility(View.GONE);
@@ -199,9 +286,13 @@ public class ProfileActivity extends AppCompatActivity {
         btnEditProfile.setVisibility(View.VISIBLE);
         btnSaveProfile.setVisibility(View.GONE);
         btnCancelEdit.setVisibility(View.GONE);
+        
+        // Refresh menu
+        invalidateOptionsMenu();
     }
     
     private void setEditMode() {
+        isEditMode = true;
         // Show edit views
         findViewById(R.id.llDisplayMode).setVisibility(View.GONE);
         findViewById(R.id.llEditMode).setVisibility(View.VISIBLE);
@@ -210,5 +301,8 @@ public class ProfileActivity extends AppCompatActivity {
         btnEditProfile.setVisibility(View.GONE);
         btnSaveProfile.setVisibility(View.VISIBLE);
         btnCancelEdit.setVisibility(View.VISIBLE);
+        
+        // Refresh menu
+        invalidateOptionsMenu();
     }
 }

@@ -67,6 +67,25 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@androidx.annotation.NonNull android.view.MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_help) {
+            Toast.makeText(this, "Help & Support feature coming soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (itemId == R.id.action_cart) {
+            startActivity(new Intent(this, CartActivity.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void loadCartItems() {
         String userId = FirebaseHelper.getCurrentUserId();
         if (userId == null) {

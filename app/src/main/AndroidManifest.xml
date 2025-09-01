@@ -41,42 +41,49 @@
         <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.Cartify.NoActionBar" />
         
         <!-- Product Detail Activity -->
         <activity
             android:name=".ProductDetailActivity"
             android:exported="false"
+            android:theme="@style/Theme.Cartify.NoActionBar"
             android:parentActivityName=".MainActivity" />
         
         <!-- Cart Activity -->
         <activity
             android:name=".CartActivity"
             android:exported="false"
+            android:theme="@style/Theme.Cartify.NoActionBar"
             android:parentActivityName=".MainActivity" />
         
         <!-- Order Confirmation Activity -->
         <activity
             android:name=".OrderConfirmationActivity"
             android:exported="false"
+            android:theme="@style/Theme.Cartify.NoActionBar"
             android:parentActivityName=".CartActivity" />
         
         <!-- Profile Activity -->
         <activity
             android:name=".ProfileActivity"
             android:exported="false"
+            android:theme="@style/Theme.Cartify.NoActionBar"
             android:parentActivityName=".MainActivity" />
         
         <!-- Orders Activity -->
         <activity
             android:name=".OrdersActivity"
             android:exported="false"
+            android:theme="@style/Theme.Cartify.NoActionBar"
             android:parentActivityName=".MainActivity" />
         
         <!-- Order Detail Activity -->
         <activity
             android:name=".OrderDetailActivity"
             android:exported="false"
+            android:theme="@style/Theme.Cartify.NoActionBar"
             android:parentActivityName=".OrdersActivity" />
             
     </application>
