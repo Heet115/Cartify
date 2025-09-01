@@ -55,6 +55,25 @@
                     android:scaleType="centerCrop"
                     tools:src="@drawable/placeholder_image" />
 
+                <!-- Discount Badge -->
+                <TextView
+                    android:id="@+id/tvDiscount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|start"
+                    android:layout_margin="16dp"
+                    android:background="@drawable/bg_discount_badge"
+                    android:paddingStart="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="6dp"
+                    android:text="30% OFF"
+                    android:textColor="@color/text_on_accent"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    tools:text="30% OFF" />
+
                 <!-- Favorite Button -->
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fabFavorite"

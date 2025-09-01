@@ -19,6 +19,7 @@ import com.cartify.app.R;
 import com.cartify.app.models.CartItem;
 import com.cartify.app.models.Product;
 import com.cartify.app.utils.FirebaseHelper;
+import com.cartify.app.utils.PriceUtils;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
@@ -48,10 +49,19 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         Product product = productList.get(position);
         
         holder.tvTitle.setText(product.getTitle());
-        holder.tvPrice.setText("$" + String.format("%.2f", product.getPrice()));
-        holder.tvOldPrice.setText("$" + String.format("%.2f", product.getOldPrice()));
+        holder.tvPrice.setText(PriceUtils.formatPrice(product.getPrice()));
+        holder.tvOldPrice.setText(PriceUtils.formatPrice(product.getOldPrice()));
         holder.tvRating.setText(String.valueOf(product.getRating()));
         holder.tvReviews.setText("(" + product.getReview() + ")");
+        
+        // Display dynamic discount percentage using utility
+        String discountText = PriceUtils.getDiscountText(product.getOldPrice(), product.getPrice());
+        if (discountText != null) {
+            holder.tvDiscount.setText(discountText);
+            holder.tvDiscount.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvDiscount.setVisibility(View.GONE);
+        }
         
         // Load product image using Glide
         if (product.getPicUrl() != null && !product.getPicUrl().isEmpty()) {
@@ -139,7 +149,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     static class ProductViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
         ImageView ivProduct;
-        TextView tvTitle, tvPrice, tvOldPrice, tvRating, tvReviews;
+        TextView tvTitle, tvPrice, tvOldPrice, tvRating, tvReviews, tvDiscount;
         MaterialButton btnAddToCart;
 
         public ProductViewHolder(@NonNull View itemView) {
@@ -151,6 +161,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             tvOldPrice = itemView.findViewById(R.id.tvOldPrice);
             tvRating = itemView.findViewById(R.id.tvRating);
             tvReviews = itemView.findViewById(R.id.tvReviews);
+            tvDiscount = itemView.findViewById(R.id.tvDiscount);
             btnAddToCart = itemView.findViewById(R.id.btnAddToCart);
         }
     }

@@ -21,7 +21,6 @@
             android:background="@drawable/bg_gradient_primary"
             android:elevation="0dp"
             android:paddingTop="8dp"
-            app:logo="@drawable/cartify_logo"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:title="Cartify"
             app:titleTextColor="@color/text_on_primary"

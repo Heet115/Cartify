@@ -19,6 +19,8 @@ import com.cartify.app.activities.main.MainActivity;
 import com.cartify.app.activities.order.OrdersActivity;
 import com.cartify.app.models.UserProfile;
 import com.cartify.app.utils.FirebaseHelper;
+import com.cartify.app.utils.InputValidator;
+import com.cartify.app.utils.FormValidationHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import android.content.Intent;
 
@@ -36,6 +38,7 @@ public class ProfileActivity extends AppCompatActivity {
     
     private UserProfile currentProfile;
     private boolean isEditMode = false;
+    private FormValidationHelper formValidator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         initViews();
+        setupValidation();
         setupToolbar();
         setupBottomNavigation();
         loadUserProfile();
@@ -76,6 +80,33 @@ public class ProfileActivity extends AppCompatActivity {
         
         // Initially show display mode
         setDisplayMode();
+    }
+
+    private void setupValidation() {
+        formValidator = new FormValidationHelper();
+        
+        // Add validation for profile fields (all optional but must be valid if provided)
+        formValidator.addOptionalField(etName, InputValidator::validateName)
+                   .addOptionalField(etPhone, InputValidator::validatePhone)
+                   .addOptionalField(etAddress, InputValidator::validateAddress);
+
+        // Set validation listener to enable/disable save button
+        formValidator.setValidationListener(new FormValidationHelper.ValidationListener() {
+            @Override
+            public void onValidationStateChanged(boolean isFormValid) {
+                if (isEditMode) {
+                    btnSaveProfile.setEnabled(isFormValid && !isLoading());
+                }
+            }
+
+            @Override
+            public void onFieldValidated(EditText field, boolean isValid, String errorMessage) {
+                // Optional: Handle individual field validation
+            }
+        });
+        
+        // Disable real-time validation initially (enable only in edit mode)
+        formValidator.setRealTimeValidationEnabled(false);
     }
 
     private void setupToolbar() {
@@ -237,9 +268,44 @@ public class ProfileActivity extends AppCompatActivity {
         String userId = FirebaseHelper.getCurrentUserId();
         if (userId == null) return;
 
-        String name = etName.getText().toString().trim();
-        String phone = etPhone.getText().toString().trim();
-        String address = etAddress.getText().toString().trim();
+        // Validate all fields before saving
+        if (!formValidator.validateAllFields()) {
+            formValidator.focusFirstInvalidField();
+            return;
+        }
+
+        // Sanitize and get input values
+        String name = InputValidator.sanitizeInput(etName.getText().toString().trim());
+        String phone = InputValidator.sanitizeInput(etPhone.getText().toString().trim());
+        String address = InputValidator.sanitizeInput(etAddress.getText().toString().trim());
+
+        // Additional validation for non-empty fields
+        if (!name.isEmpty()) {
+            InputValidator.ValidationResult nameValidation = InputValidator.validateName(name);
+            if (!nameValidation.isValid()) {
+                etName.setError(nameValidation.getErrorMessage());
+                etName.requestFocus();
+                return;
+            }
+        }
+
+        if (!phone.isEmpty()) {
+            InputValidator.ValidationResult phoneValidation = InputValidator.validatePhone(phone);
+            if (!phoneValidation.isValid()) {
+                etPhone.setError(phoneValidation.getErrorMessage());
+                etPhone.requestFocus();
+                return;
+            }
+        }
+
+        if (!address.isEmpty()) {
+            InputValidator.ValidationResult addressValidation = InputValidator.validateAddress(address);
+            if (!addressValidation.isValid()) {
+                etAddress.setError(addressValidation.getErrorMessage());
+                etAddress.requestFocus();
+                return;
+            }
+        }
 
         if (currentProfile == null) {
             createNewProfile(userId);
@@ -250,33 +316,41 @@ public class ProfileActivity extends AppCompatActivity {
         currentProfile.setPhone(phone);
         currentProfile.setAddress(address);
 
-        progressBar.setVisibility(View.VISIBLE);
-        btnSaveProfile.setEnabled(false);
+        setLoading(true);
 
         FirebaseHelper.getUserProfileRef(userId)
             .set(currentProfile)
             .addOnSuccessListener(aVoid -> {
-                progressBar.setVisibility(View.GONE);
-                btnSaveProfile.setEnabled(true);
-                Toast.makeText(this, "Profile saved successfully", Toast.LENGTH_SHORT).show();
+                setLoading(false);
+                Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
                 displayProfile();
                 setDisplayMode();
             })
             .addOnFailureListener(e -> {
-                progressBar.setVisibility(View.GONE);
-                btnSaveProfile.setEnabled(true);
-                Toast.makeText(this, "Failed to save profile: " + e.getMessage(), 
-                    Toast.LENGTH_SHORT).show();
+                setLoading(false);
+                String errorMessage = "Failed to save profile";
+                if (e.getMessage() != null) {
+                    if (e.getMessage().contains("network")) {
+                        errorMessage = "Network error. Please check your connection.";
+                    } else if (e.getMessage().contains("permission")) {
+                        errorMessage = "Permission denied. Please try logging in again.";
+                    }
+                }
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
             });
     }
     
     private void enableEditMode() {
         isEditMode = true;
+        formValidator.setRealTimeValidationEnabled(true);
+        formValidator.clearErrors();
         setEditMode();
     }
     
     private void cancelEdit() {
         isEditMode = false;
+        formValidator.setRealTimeValidationEnabled(false);
+        formValidator.clearErrors();
         displayProfile(); // Reset to original values
         setDisplayMode();
     }
@@ -309,5 +383,18 @@ public class ProfileActivity extends AppCompatActivity {
         
         // Refresh menu
         invalidateOptionsMenu();
+    }
+
+    private void setLoading(boolean loading) {
+        progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
+        btnSaveProfile.setEnabled(!loading && formValidator.isFormValid());
+        btnCancelEdit.setEnabled(!loading);
+        etName.setEnabled(!loading);
+        etPhone.setEnabled(!loading);
+        etAddress.setEnabled(!loading);
+    }
+
+    private boolean isLoading() {
+        return progressBar.getVisibility() == View.VISIBLE;
     }
 }

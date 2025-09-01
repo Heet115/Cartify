@@ -22,6 +22,7 @@ import com.cartify.app.activities.user.ProfileActivity;
 import com.cartify.app.adapters.CartAdapter;
 import com.cartify.app.models.CartItem;
 import com.cartify.app.utils.FirebaseHelper;
+import com.cartify.app.utils.InputValidator;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
@@ -209,20 +210,58 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         String userId = FirebaseHelper.getCurrentUserId();
         if (userId == null) return;
 
+        // Validate quantity input
+        InputValidator.ValidationResult quantityValidation = 
+            InputValidator.validateQuantity(String.valueOf(newQuantity));
+        
+        if (!quantityValidation.isValid()) {
+            Toast.makeText(this, quantityValidation.getErrorMessage(), Toast.LENGTH_SHORT).show();
+            // Reload cart to reset to previous valid quantity
+            loadCartItems();
+            return;
+        }
+
+        // Additional business logic validation
+        if (newQuantity < 1) {
+            Toast.makeText(this, "Quantity must be at least 1", Toast.LENGTH_SHORT).show();
+            loadCartItems();
+            return;
+        }
+
+        if (newQuantity > 99) {
+            Toast.makeText(this, "Maximum quantity is 99 per item", Toast.LENGTH_SHORT).show();
+            loadCartItems();
+            return;
+        }
+
+        // Show loading state
+        progressBar.setVisibility(View.VISIBLE);
+
         // Find and update the item in Firestore
         FirebaseHelper.getUserCartCollection(userId)
             .whereEqualTo("productId", item.getProductId())
             .get()
             .addOnSuccessListener(querySnapshot -> {
+                progressBar.setVisibility(View.GONE);
                 for (com.google.firebase.firestore.QueryDocumentSnapshot document : querySnapshot) {
                     document.getReference().update("quantity", newQuantity)
-                        .addOnFailureListener(e -> 
-                            Toast.makeText(CartActivity.this, "Failed to update quantity", Toast.LENGTH_SHORT).show());
+                        .addOnSuccessListener(aVoid -> {
+                            // Update local item
+                            item.setQuantity(newQuantity);
+                            updateTotalAmount();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(CartActivity.this, "Failed to update quantity", Toast.LENGTH_SHORT).show();
+                            loadCartItems(); // Reload to reset
+                        });
                     break;
                 }
             })
-            .addOnFailureListener(e -> 
-                Toast.makeText(CartActivity.this, "Failed to update quantity", Toast.LENGTH_SHORT).show());
+            .addOnFailureListener(e -> {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(CartActivity.this, "Failed to update quantity", Toast.LENGTH_SHORT).show();
+                loadCartItems(); // Reload to reset
+            });
     }
 
     @Override
@@ -249,11 +288,68 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
     }
 
     private void proceedToCheckout() {
+        // Validate cart state before checkout
         if (cartItems.isEmpty()) {
-            Toast.makeText(this, "Cart is empty", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Your cart is empty. Add some items to continue.", Toast.LENGTH_LONG).show();
             return;
         }
 
+        // Validate all cart items
+        boolean hasValidItems = false;
+        for (CartItem item : cartItems) {
+            if (item.getQuantity() > 0) {
+                // Validate quantity
+                InputValidator.ValidationResult quantityValidation = 
+                    InputValidator.validateQuantity(String.valueOf(item.getQuantity()));
+                
+                if (!quantityValidation.isValid()) {
+                    Toast.makeText(this, "Invalid quantity for " + item.getTitle() + 
+                        ": " + quantityValidation.getErrorMessage(), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                // Validate price
+                InputValidator.ValidationResult priceValidation = 
+                    InputValidator.validatePrice(String.valueOf(item.getPrice()));
+                
+                if (!priceValidation.isValid()) {
+                    Toast.makeText(this, "Invalid price for " + item.getTitle(), Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                hasValidItems = true;
+            }
+        }
+
+        if (!hasValidItems) {
+            Toast.makeText(this, "No valid items in cart. Please check quantities.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Calculate total and validate
+        double total = 0;
+        for (CartItem item : cartItems) {
+            total += item.getPrice() * item.getQuantity();
+        }
+
+        if (total <= 0) {
+            Toast.makeText(this, "Invalid cart total. Please refresh and try again.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (total > 999999.99) {
+            Toast.makeText(this, "Cart total exceeds maximum limit ($999,999.99)", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Check user authentication
+        String userId = FirebaseHelper.getCurrentUserId();
+        if (userId == null) {
+            Toast.makeText(this, "Please log in to continue with checkout", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Proceed to checkout
         Intent intent = new Intent(this, OrderConfirmationActivity.class);
         startActivity(intent);
     }

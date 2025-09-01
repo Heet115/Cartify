@@ -18,6 +18,8 @@ import com.cartify.app.R;
 import com.cartify.app.models.CartItem;
 import com.cartify.app.models.Product;
 import com.cartify.app.utils.FirebaseHelper;
+import com.cartify.app.utils.InputValidator;
+import com.cartify.app.utils.PriceUtils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -28,7 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 public class ProductDetailActivity extends AppCompatActivity {
 
     private ImageView ivProduct;
-    private TextView tvTitle, tvPrice, tvOldPrice, tvDescription, tvRating, tvReviews, tvQuantity;
+    private TextView tvTitle, tvPrice, tvOldPrice, tvDescription, tvRating, tvReviews, tvQuantity, tvDiscount;
     private Button btnAddToCart;
     private ImageButton btnIncrease, btnDecrease;
     private ProgressBar progressBar;
@@ -61,6 +63,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvDescription = findViewById(R.id.tvDescription);
         tvRating = findViewById(R.id.tvRating);
         tvReviews = findViewById(R.id.tvReviews);
+        tvDiscount = findViewById(R.id.tvDiscount);
         btnAddToCart = findViewById(R.id.btnAddToCart);
         progressBar = findViewById(R.id.progressBar);
         
@@ -159,11 +162,20 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     private void displayProductDetails() {
         tvTitle.setText(currentProduct.getTitle());
-        tvPrice.setText("$" + String.format("%.2f", currentProduct.getPrice()));
-        tvOldPrice.setText("$" + String.format("%.2f", currentProduct.getOldPrice()));
+        tvPrice.setText(PriceUtils.formatPrice(currentProduct.getPrice()));
+        tvOldPrice.setText(PriceUtils.formatPrice(currentProduct.getOldPrice()));
         tvDescription.setText(currentProduct.getDescription());
         tvRating.setText(String.valueOf(currentProduct.getRating()));
         tvReviews.setText("(" + currentProduct.getReview() + " reviews)");
+
+        // Display dynamic discount percentage using utility
+        String discountText = PriceUtils.getDiscountText(currentProduct.getOldPrice(), currentProduct.getPrice());
+        if (discountText != null) {
+            tvDiscount.setText(discountText);
+            tvDiscount.setVisibility(View.VISIBLE);
+        } else {
+            tvDiscount.setVisibility(View.GONE);
+        }
 
         // Load product image
         if (currentProduct.getPicUrl() != null && !currentProduct.getPicUrl().isEmpty()) {
@@ -176,9 +188,20 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
 
     private void increaseQuantity() {
+        // Validate current quantity before increasing
+        InputValidator.ValidationResult validation = 
+            InputValidator.validateQuantity(String.valueOf(quantity + 1));
+        
+        if (!validation.isValid()) {
+            Toast.makeText(this, validation.getErrorMessage(), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
         if (quantity < 99) { // Set a reasonable maximum
             quantity++;
             updateQuantityDisplay();
+        } else {
+            Toast.makeText(this, "Maximum quantity is 99", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -186,6 +209,8 @@ public class ProductDetailActivity extends AppCompatActivity {
         if (quantity > 1) {
             quantity--;
             updateQuantityDisplay();
+        } else {
+            Toast.makeText(this, "Minimum quantity is 1", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -194,24 +219,75 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
 
     private void addToCart() {
-        if (currentProduct == null) return;
+        if (currentProduct == null) {
+            Toast.makeText(this, "Product information not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         String userId = FirebaseHelper.getCurrentUserId();
         if (userId == null) {
-            Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please log in to add items to cart", Toast.LENGTH_LONG).show();
             return;
         }
+
+        // Validate quantity before adding to cart
+        InputValidator.ValidationResult quantityValidation = 
+            InputValidator.validateQuantity(String.valueOf(quantity));
+        
+        if (!quantityValidation.isValid()) {
+            Toast.makeText(this, quantityValidation.getErrorMessage(), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Validate product data
+        if (currentProduct.getTitle() == null || currentProduct.getTitle().trim().isEmpty()) {
+            Toast.makeText(this, "Invalid product title", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        InputValidator.ValidationResult priceValidation = 
+            InputValidator.validatePrice(String.valueOf(currentProduct.getPrice()));
+        
+        if (!priceValidation.isValid()) {
+            Toast.makeText(this, "Invalid product price", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        progressBar.setVisibility(View.VISIBLE);
+        btnAddToCart.setEnabled(false);
 
         // Check if item already exists in cart
         FirebaseHelper.getUserCartCollection(userId)
             .whereEqualTo("productId", currentProduct.getId())
             .get()
             .addOnSuccessListener(querySnapshot -> {
+                progressBar.setVisibility(View.GONE);
+                btnAddToCart.setEnabled(true);
+                
                 if (!querySnapshot.isEmpty()) {
                     // Item exists, update quantity
                     for (com.google.firebase.firestore.QueryDocumentSnapshot document : querySnapshot) {
                         CartItem existingItem = document.toObject(CartItem.class);
                         int newQuantity = existingItem.getQuantity() + quantity;
+                        
+                        // Validate new total quantity
+                        InputValidator.ValidationResult newQuantityValidation = 
+                            InputValidator.validateQuantity(String.valueOf(newQuantity));
+                        
+                        if (!newQuantityValidation.isValid()) {
+                            Toast.makeText(ProductDetailActivity.this, 
+                                "Cannot add more items: " + newQuantityValidation.getErrorMessage(), 
+                                Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        if (newQuantity > 99) {
+                            Toast.makeText(ProductDetailActivity.this, 
+                                "Cannot add more items. Maximum 99 per product in cart.", 
+                                Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
                         document.getReference().update("quantity", newQuantity)
                             .addOnSuccessListener(aVoid -> {
                                 Toast.makeText(ProductDetailActivity.this, 
@@ -226,18 +302,21 @@ public class ProductDetailActivity extends AppCompatActivity {
                         break;
                     }
                 } else {
-                    // Item doesn't exist, create new cart item
+                    // Item doesn't exist, create new cart item with sanitized data
+                    String sanitizedTitle = InputValidator.sanitizeInput(currentProduct.getTitle());
+                    String sanitizedImageUrl = currentProduct.getPicUrl() != null && !currentProduct.getPicUrl().isEmpty() 
+                        ? InputValidator.sanitizeInput(currentProduct.getPicUrl().get(0)) : "";
+                    
                     CartItem cartItem = new CartItem(
                         currentProduct.getId(),
-                        currentProduct.getTitle(),
+                        sanitizedTitle,
                         currentProduct.getPrice(),
-                        currentProduct.getPicUrl() != null && !currentProduct.getPicUrl().isEmpty() 
-                            ? currentProduct.getPicUrl().get(0) : "",
+                        sanitizedImageUrl,
                         quantity,
                         currentProduct.getSize() != null && !currentProduct.getSize().isEmpty() 
-                            ? currentProduct.getSize().get(0) : null,
+                            ? InputValidator.sanitizeInput(currentProduct.getSize().get(0)) : null,
                         currentProduct.getColor() != null && !currentProduct.getColor().isEmpty() 
-                            ? currentProduct.getColor().get(0) : null
+                            ? InputValidator.sanitizeInput(currentProduct.getColor().get(0)) : null
                     );
 
                     FirebaseHelper.getUserCartCollection(userId)
@@ -254,8 +333,11 @@ public class ProductDetailActivity extends AppCompatActivity {
                                 "Failed to add to cart", Toast.LENGTH_SHORT).show());
                 }
             })
-            .addOnFailureListener(e -> 
+            .addOnFailureListener(e -> {
+                progressBar.setVisibility(View.GONE);
+                btnAddToCart.setEnabled(true);
                 Toast.makeText(ProductDetailActivity.this, 
-                    "Failed to check cart", Toast.LENGTH_SHORT).show());
+                    "Failed to check cart", Toast.LENGTH_SHORT).show();
+            });
     }
 }

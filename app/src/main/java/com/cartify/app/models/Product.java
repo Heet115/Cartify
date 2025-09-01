@@ -11,7 +11,6 @@ public class Product {
     private String description;
     private double price;
     private double oldPrice;
-    private String offPercent;
     private double rating;
     private int review;
     private List<String> picUrl;
@@ -22,14 +21,13 @@ public class Product {
     public Product() {}
 
     public Product(String id, String title, String description, double price, 
-                   double oldPrice, String offPercent, double rating, int review,
+                   double oldPrice, double rating, int review,
                    List<String> picUrl, List<String> size, List<String> color) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.price = price;
         this.oldPrice = oldPrice;
-        this.offPercent = offPercent;
         this.rating = rating;
         this.review = review;
         this.picUrl = picUrl;
@@ -52,9 +50,6 @@ public class Product {
 
     public double getOldPrice() { return oldPrice; }
     public void setOldPrice(double oldPrice) { this.oldPrice = oldPrice; }
-
-    public String getOffPercent() { return offPercent; }
-    public void setOffPercent(String offPercent) { this.offPercent = offPercent; }
 
     public double getRating() { return rating; }
     public void setRating(double rating) { this.rating = rating; }

@@ -25,6 +25,7 @@ import com.cartify.app.adapters.ProductAdapter;
 import com.cartify.app.models.Product;
 import com.cartify.app.utils.FirebaseHelper;
 import com.cartify.app.utils.SearchSuggestionsHelper;
+import com.cartify.app.utils.InputValidator;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -110,12 +111,29 @@ public class SearchActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                currentQuery = s.toString().trim();
+                String rawQuery = s.toString();
+                
+                // Validate and sanitize search input
+                if (rawQuery.length() > 100) {
+                    searchEditText.setError("Search query too long (max 100 characters)");
+                    return;
+                }
+                
+                // Sanitize the input
+                currentQuery = InputValidator.sanitizeInput(rawQuery.trim());
+                
+                // Clear any previous errors
+                searchEditText.setError(null);
+                
+                // Perform search
                 performSearch(currentQuery);
                 
-                // Save to search history when user stops typing
+                // Save to search history when user stops typing (with validation)
                 if (!currentQuery.isEmpty() && currentQuery.length() > 2) {
-                    suggestionsHelper.addToHistory(currentQuery);
+                    InputValidator.ValidationResult validation = InputValidator.validateSearchQuery(currentQuery);
+                    if (validation.isValid()) {
+                        suggestionsHelper.addToHistory(currentQuery);
+                    }
                 }
             }
 
@@ -166,6 +184,14 @@ public class SearchActivity extends AppCompatActivity {
             // Show all products when search is empty
             filteredProducts.addAll(allProducts);
         } else {
+            // Validate search query before processing
+            InputValidator.ValidationResult validation = InputValidator.validateSearchQuery(query);
+            if (!validation.isValid()) {
+                // Show error but don't crash - just show no results
+                updateUI();
+                return;
+            }
+            
             // Filter products based on search query
             String lowerCaseQuery = query.toLowerCase();
             
@@ -205,8 +231,11 @@ public class SearchActivity extends AppCompatActivity {
         // Search by price range (if query is numeric)
         try {
             double searchPrice = Double.parseDouble(query);
-            if (Math.abs(product.getPrice() - searchPrice) < 10) { // Within $10 range
-                return true;
+            
+            // Validate price input
+            InputValidator.ValidationResult priceValidation = InputValidator.validatePrice(query);
+            if (priceValidation.isValid() && Math.abs(product.getPrice() - searchPrice) < 10) {
+                return true; // Within $10 range
             }
         } catch (NumberFormatException e) {
             // Not a number, continue with other searches
