@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cartify.app.OrderDetailActivity;
+import com.cartify.app.activities.order.OrderDetailActivity;
 import com.cartify.app.R;
 import com.cartify.app.models.Order;
 

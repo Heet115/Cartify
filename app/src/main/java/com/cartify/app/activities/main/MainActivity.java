@@ -1,4 +1,4 @@
-package com.cartify.app;
+package com.cartify.app.activities.main;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.cartify.app.R;
+import com.cartify.app.activities.auth.LoginActivity;
+import com.cartify.app.activities.cart.CartActivity;
+import com.cartify.app.activities.order.OrdersActivity;
+import com.cartify.app.activities.product.ProductDetailActivity;
+import com.cartify.app.activities.product.SearchActivity;
+import com.cartify.app.activities.user.ProfileActivity;
 import com.cartify.app.adapters.BannerAdapter;
 import com.cartify.app.adapters.CategoryAdapter;
 import com.cartify.app.adapters.ProductAdapter;

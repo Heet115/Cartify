@@ -1,4 +1,4 @@
-package com.cartify.app;
+package com.cartify.app.activities.product;
 
 import android.os.Bundle;
 import android.view.View;
@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
+import com.cartify.app.R;
 import com.cartify.app.models.CartItem;
 import com.cartify.app.models.Product;
 import com.cartify.app.utils.FirebaseHelper;

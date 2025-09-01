@@ -14,7 +14,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.cartify.app.ProductDetailActivity;
+import com.cartify.app.activities.product.ProductDetailActivity;
 import com.cartify.app.R;
 import com.cartify.app.models.CartItem;
 import com.cartify.app.models.Product;

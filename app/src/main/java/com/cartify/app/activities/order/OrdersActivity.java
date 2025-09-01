@@ -1,4 +1,4 @@
-package com.cartify.app;
+package com.cartify.app.activities.order;
 
 import android.os.Bundle;
 import android.view.View;
@@ -11,6 +11,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cartify.app.R;
+import com.cartify.app.activities.cart.CartActivity;
+import com.cartify.app.activities.main.MainActivity;
+import com.cartify.app.activities.user.ProfileActivity;
 import com.cartify.app.adapters.OrderAdapter;
 import com.cartify.app.models.Order;
 import com.cartify.app.utils.FirebaseHelper;

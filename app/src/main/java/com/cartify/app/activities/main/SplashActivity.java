@@ -1,4 +1,4 @@
-package com.cartify.app;
+package com.cartify.app.activities.main;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,8 @@ import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cartify.app.R;
+import com.cartify.app.activities.auth.LoginActivity;
 import com.cartify.app.utils.FirebaseHelper;
 import com.cartify.app.utils.UserDataHelper;
 

@@ -1,4 +1,4 @@
-package com.cartify.app;
+package com.cartify.app.activities.product;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +19,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cartify.app.R;
+import com.cartify.app.activities.cart.CartActivity;
 import com.cartify.app.adapters.ProductAdapter;
 import com.cartify.app.models.Product;
 import com.cartify.app.utils.FirebaseHelper;

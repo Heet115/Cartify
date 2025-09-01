@@ -1,4 +1,4 @@
-package com.cartify.app;
+package com.cartify.app.activities.order;
 
 import android.os.Bundle;
 import android.view.View;
@@ -11,6 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cartify.app.R;
 import com.cartify.app.adapters.OrderItemAdapter;
 import com.cartify.app.models.CartItem;
 import com.cartify.app.models.Order;

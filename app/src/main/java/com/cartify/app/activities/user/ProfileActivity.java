@@ -1,4 +1,4 @@
-package com.cartify.app;
+package com.cartify.app.activities.user;
 
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.cartify.app.R;
+import com.cartify.app.activities.auth.LoginActivity;
+import com.cartify.app.activities.cart.CartActivity;
+import com.cartify.app.activities.main.MainActivity;
+import com.cartify.app.activities.order.OrdersActivity;
 import com.cartify.app.models.UserProfile;
 import com.cartify.app.utils.FirebaseHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;

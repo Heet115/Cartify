@@ -1,4 +1,4 @@
-package com.cartify.app;
+package com.cartify.app.activities.order;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.cartify.app.R;
+import com.cartify.app.activities.main.MainActivity;
 import com.cartify.app.models.CartItem;
 import com.cartify.app.models.Order;
 import com.cartify.app.utils.FirebaseHelper;

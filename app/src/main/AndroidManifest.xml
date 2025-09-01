@@ -17,7 +17,7 @@
         
         <!-- Splash Activity as launcher -->
         <activity
-            android:name=".SplashActivity"
+            android:name=".activities.main.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.Cartify.Splash">
             <intent-filter>
@@ -28,70 +28,70 @@
         
         <!-- Login Activity -->
         <activity
-            android:name=".LoginActivity"
+            android:name=".activities.auth.LoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Cartify.NoActionBar" />
         
         <!-- Register Activity -->
         <activity
-            android:name=".RegisterActivity"
+            android:name=".activities.auth.RegisterActivity"
             android:exported="false"
             android:theme="@style/Theme.Cartify.NoActionBar" />
         
         <!-- Main Activity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.main.MainActivity"
             android:exported="false"
             android:theme="@style/Theme.Cartify.NoActionBar" />
         
         <!-- Product Detail Activity -->
         <activity
-            android:name=".ProductDetailActivity"
+            android:name=".activities.product.ProductDetailActivity"
             android:exported="false"
             android:theme="@style/Theme.Cartify.NoActionBar"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".activities.main.MainActivity" />
         
         <!-- Cart Activity -->
         <activity
-            android:name=".CartActivity"
+            android:name=".activities.cart.CartActivity"
             android:exported="false"
             android:theme="@style/Theme.Cartify.NoActionBar"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".activities.main.MainActivity" />
         
         <!-- Order Confirmation Activity -->
         <activity
-            android:name=".OrderConfirmationActivity"
+            android:name=".activities.order.OrderConfirmationActivity"
             android:exported="false"
             android:theme="@style/Theme.Cartify.NoActionBar"
-            android:parentActivityName=".CartActivity" />
+            android:parentActivityName=".activities.cart.CartActivity" />
         
         <!-- Profile Activity -->
         <activity
-            android:name=".ProfileActivity"
+            android:name=".activities.user.ProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.Cartify.NoActionBar"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".activities.main.MainActivity" />
         
         <!-- Orders Activity -->
         <activity
-            android:name=".OrdersActivity"
+            android:name=".activities.order.OrdersActivity"
             android:exported="false"
             android:theme="@style/Theme.Cartify.NoActionBar"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".activities.main.MainActivity" />
         
         <!-- Order Detail Activity -->
         <activity
-            android:name=".OrderDetailActivity"
+            android:name=".activities.order.OrderDetailActivity"
             android:exported="false"
             android:theme="@style/Theme.Cartify.NoActionBar"
-            android:parentActivityName=".OrdersActivity" />
+            android:parentActivityName=".activities.order.OrdersActivity" />
         
         <!-- Search Activity -->
         <activity
-            android:name=".SearchActivity"
+            android:name=".activities.product.SearchActivity"
             android:exported="false"
             android:theme="@style/Theme.Cartify.NoActionBar"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".activities.main.MainActivity" />
         
 
             
