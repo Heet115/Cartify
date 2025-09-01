@@ -143,18 +143,16 @@ public class ProductDetailActivity extends AppCompatActivity {
                 ? currentProduct.getColor().get(0) : null
         );
 
-        // Add to Firebase
-        String cartItemId = FirebaseHelper.getUserCartRef(userId).push().getKey();
-        if (cartItemId != null) {
-            FirebaseHelper.getUserCartRef(userId).child(cartItemId).setValue(cartItem)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(ProductDetailActivity.this, 
-                        "Added to cart", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(ProductDetailActivity.this, 
-                        "Failed to add to cart", Toast.LENGTH_SHORT).show();
-                });
-        }
+        // Add to Firestore
+        FirebaseHelper.getUserCartCollection(userId)
+            .add(cartItem)
+            .addOnSuccessListener(documentReference -> {
+                Toast.makeText(ProductDetailActivity.this, 
+                    "Added to cart", Toast.LENGTH_SHORT).show();
+            })
+            .addOnFailureListener(e -> {
+                Toast.makeText(ProductDetailActivity.this, 
+                    "Failed to add to cart", Toast.LENGTH_SHORT).show();
+            });
     }
 }

@@ -17,9 +17,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cartify.app.adapters.CartAdapter;
 import com.cartify.app.models.CartItem;
 import com.cartify.app.utils.FirebaseHelper;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,15 +77,23 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
 
         progressBar.setVisibility(View.VISIBLE);
         
-        FirebaseHelper.getUserCartRef(userId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+        FirebaseHelper.getUserCartCollection(userId)
+            .addSnapshotListener((querySnapshot, error) -> {
+                if (error != null) {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(CartActivity.this, 
+                        "Failed to load cart items: " + error.getMessage(), 
+                        Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 cartItems.clear();
-                
-                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                    CartItem item = itemSnapshot.getValue(CartItem.class);
-                    if (item != null) {
-                        cartItems.add(item);
+                if (querySnapshot != null) {
+                    for (com.google.firebase.firestore.QueryDocumentSnapshot document : querySnapshot) {
+                        CartItem item = document.toObject(CartItem.class);
+                        if (item != null) {
+                            cartItems.add(item);
+                        }
                     }
                 }
                 
@@ -96,15 +101,7 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
                 updateTotalAmount();
                 updateEmptyState();
                 progressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(CartActivity.this, 
-                    "Failed to load cart items", Toast.LENGTH_SHORT).show();
-            }
-        });
+            });
     }
 
     private void updateTotalAmount() {
@@ -132,24 +129,20 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         String userId = FirebaseHelper.getCurrentUserId();
         if (userId == null) return;
 
-        // Find and update the item in Firebase
-        FirebaseHelper.getUserCartRef(userId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                    CartItem cartItem = itemSnapshot.getValue(CartItem.class);
-                    if (cartItem != null && cartItem.getProductId().equals(item.getProductId())) {
-                        itemSnapshot.getRef().child("quantity").setValue(newQuantity);
-                        break;
-                    }
+        // Find and update the item in Firestore
+        FirebaseHelper.getUserCartCollection(userId)
+            .whereEqualTo("productId", item.getProductId())
+            .get()
+            .addOnSuccessListener(querySnapshot -> {
+                for (com.google.firebase.firestore.QueryDocumentSnapshot document : querySnapshot) {
+                    document.getReference().update("quantity", newQuantity)
+                        .addOnFailureListener(e -> 
+                            Toast.makeText(CartActivity.this, "Failed to update quantity", Toast.LENGTH_SHORT).show());
+                    break;
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(CartActivity.this, "Failed to update quantity", Toast.LENGTH_SHORT).show();
-            }
-        });
+            })
+            .addOnFailureListener(e -> 
+                Toast.makeText(CartActivity.this, "Failed to update quantity", Toast.LENGTH_SHORT).show());
     }
 
     @Override
@@ -157,25 +150,22 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         String userId = FirebaseHelper.getCurrentUserId();
         if (userId == null) return;
 
-        // Remove item from Firebase
-        FirebaseHelper.getUserCartRef(userId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                    CartItem cartItem = itemSnapshot.getValue(CartItem.class);
-                    if (cartItem != null && cartItem.getProductId().equals(item.getProductId())) {
-                        itemSnapshot.getRef().removeValue();
-                        Toast.makeText(CartActivity.this, "Item removed from cart", Toast.LENGTH_SHORT).show();
-                        break;
-                    }
+        // Remove item from Firestore
+        FirebaseHelper.getUserCartCollection(userId)
+            .whereEqualTo("productId", item.getProductId())
+            .get()
+            .addOnSuccessListener(querySnapshot -> {
+                for (com.google.firebase.firestore.QueryDocumentSnapshot document : querySnapshot) {
+                    document.getReference().delete()
+                        .addOnSuccessListener(aVoid -> 
+                            Toast.makeText(CartActivity.this, "Item removed from cart", Toast.LENGTH_SHORT).show())
+                        .addOnFailureListener(e -> 
+                            Toast.makeText(CartActivity.this, "Failed to remove item", Toast.LENGTH_SHORT).show());
+                    break;
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(CartActivity.this, "Failed to remove item", Toast.LENGTH_SHORT).show();
-            }
-        });
+            })
+            .addOnFailureListener(e -> 
+                Toast.makeText(CartActivity.this, "Failed to remove item", Toast.LENGTH_SHORT).show());
     }
 
     private void proceedToCheckout() {

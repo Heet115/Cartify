@@ -109,7 +109,8 @@ public class LoginActivity extends AppCompatActivity {
                 btnLogin.setEnabled(true);
 
                 if (task.isSuccessful()) {
-                    // Login successful
+                    // Login successful - update last login time
+                    updateLastLoginTime();
                     Toast.makeText(LoginActivity.this, "Login successful", 
                         Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
@@ -121,5 +122,19 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
                 }
             });
+    }
+
+    private void updateLastLoginTime() {
+        String userId = FirebaseHelper.getCurrentUserId();
+        if (userId != null) {
+            String currentTime = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", 
+                java.util.Locale.getDefault()).format(new java.util.Date());
+            
+            FirebaseHelper.getUserProfileRef(userId)
+                .update("lastLoginAt", currentTime)
+                .addOnFailureListener(e -> {
+                    // Handle error silently or log it
+                });
+        }
     }
 }

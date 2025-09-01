@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, CartActivity.class));
                 return true;
             } else if (itemId == R.id.nav_profile) {
-                // Handle profile navigation
+                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
                 return true;
             }
             return false;
@@ -129,6 +129,9 @@ public class MainActivity extends AppCompatActivity {
         int itemId = item.getItemId();
         if (itemId == R.id.action_cart) {
             startActivity(new Intent(this, CartActivity.class));
+            return true;
+        } else if (itemId == R.id.action_orders) {
+            startActivity(new Intent(this, OrdersActivity.class));
             return true;
         } else if (itemId == R.id.action_logout) {
             FirebaseHelper.getAuth().signOut();

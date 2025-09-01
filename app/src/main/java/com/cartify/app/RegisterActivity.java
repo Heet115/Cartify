@@ -114,7 +114,21 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void initializeUserData(String userId) {
-        // Initialize empty cart for new user
-        FirebaseHelper.getUserCartRef(userId).setValue(null);
+        // Create user profile in Firestore
+        String email = etEmail.getText().toString().trim();
+        String currentTime = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", 
+            java.util.Locale.getDefault()).format(new java.util.Date());
+        
+        com.cartify.app.models.UserProfile userProfile = new com.cartify.app.models.UserProfile(
+            userId, email, "", "", "", currentTime, currentTime
+        );
+        
+        FirebaseHelper.getUserProfileRef(userId).set(userProfile)
+            .addOnSuccessListener(aVoid -> {
+                // User profile created successfully
+            })
+            .addOnFailureListener(e -> {
+                // Handle error if needed
+            });
     }
 }

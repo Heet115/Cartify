@@ -54,6 +54,18 @@
             android:name=".OrderConfirmationActivity"
             android:exported="false"
             android:parentActivityName=".CartActivity" />
+        
+        <!-- Profile Activity -->
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+        
+        <!-- Orders Activity -->
+        <activity
+            android:name=".OrdersActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
             
     </application>
 

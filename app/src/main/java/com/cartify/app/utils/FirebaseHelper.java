@@ -4,13 +4,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * Firebase helper class for managing Firebase instances and common operations
+ * Uses Realtime Database for products and Firestore for user data, cart, and orders
  */
 public class FirebaseHelper {
     private static FirebaseAuth mAuth;
-    private static DatabaseReference mDatabase;
+    private static DatabaseReference mRealtimeDatabase;
+    private static FirebaseFirestore mFirestore;
 
     public static FirebaseAuth getAuth() {
         if (mAuth == null) {
@@ -19,11 +24,18 @@ public class FirebaseHelper {
         return mAuth;
     }
 
-    public static DatabaseReference getDatabase() {
-        if (mDatabase == null) {
-            mDatabase = FirebaseDatabase.getInstance().getReference();
+    public static DatabaseReference getRealtimeDatabase() {
+        if (mRealtimeDatabase == null) {
+            mRealtimeDatabase = FirebaseDatabase.getInstance().getReference();
         }
-        return mDatabase;
+        return mRealtimeDatabase;
+    }
+
+    public static FirebaseFirestore getFirestore() {
+        if (mFirestore == null) {
+            mFirestore = FirebaseFirestore.getInstance();
+        }
+        return mFirestore;
     }
 
     public static FirebaseUser getCurrentUser() {
@@ -39,20 +51,34 @@ public class FirebaseHelper {
         return getCurrentUser() != null;
     }
 
-    // Database reference paths
+    // Realtime Database reference paths (for products only)
     public static DatabaseReference getProductsRef() {
-        return getDatabase().child("Items");
+        return getRealtimeDatabase().child("Items");
     }
 
-    public static DatabaseReference getUserCartRef(String userId) {
-        return getDatabase().child("users").child(userId).child("cart");
+    // Firestore collection references (for user data, cart, orders)
+    public static CollectionReference getUsersCollection() {
+        return getFirestore().collection("users");
     }
 
-    public static DatabaseReference getUserOrdersRef(String userId) {
-        return getDatabase().child("users").child(userId).child("orders");
+    public static DocumentReference getUserDocument(String userId) {
+        return getUsersCollection().document(userId);
     }
 
-    public static DatabaseReference getOrdersRef() {
-        return getDatabase().child("orders");
+    public static CollectionReference getUserCartCollection(String userId) {
+        return getUserDocument(userId).collection("cart");
+    }
+
+    public static CollectionReference getUserOrdersCollection(String userId) {
+        return getUserDocument(userId).collection("orders");
+    }
+
+    public static CollectionReference getOrdersCollection() {
+        return getFirestore().collection("orders");
+    }
+
+    // User profile methods
+    public static DocumentReference getUserProfileRef(String userId) {
+        return getUserDocument(userId);
     }
 }

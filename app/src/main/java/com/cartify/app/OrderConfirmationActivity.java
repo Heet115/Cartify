@@ -16,9 +16,6 @@ import androidx.appcompat.widget.Toolbar;
 import com.cartify.app.models.CartItem;
 import com.cartify.app.models.Order;
 import com.cartify.app.utils.FirebaseHelper;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -79,14 +76,14 @@ public class OrderConfirmationActivity extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
         
-        FirebaseHelper.getUserCartRef(userId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+        FirebaseHelper.getUserCartCollection(userId)
+            .get()
+            .addOnSuccessListener(querySnapshot -> {
                 cartItems.clear();
                 totalAmount = 0;
                 
-                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                    CartItem item = itemSnapshot.getValue(CartItem.class);
+                for (com.google.firebase.firestore.QueryDocumentSnapshot document : querySnapshot) {
+                    CartItem item = document.toObject(CartItem.class);
                     if (item != null) {
                         cartItems.add(item);
                         totalAmount += item.getTotalPrice();
@@ -95,16 +92,14 @@ public class OrderConfirmationActivity extends AppCompatActivity {
                 
                 displayOrderSummary();
                 progressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            })
+            .addOnFailureListener(e -> {
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(OrderConfirmationActivity.this, 
-                    "Failed to load cart items", Toast.LENGTH_SHORT).show();
+                    "Failed to load cart items: " + e.getMessage(), 
+                    Toast.LENGTH_SHORT).show();
                 finish();
-            }
-        });
+            });
     }
 
     private void displayOrderSummary() {
@@ -142,11 +137,10 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         btnPlaceOrder.setEnabled(false);
 
         // Create order
-        String orderId = FirebaseHelper.getOrdersRef().push().getKey();
         String orderDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
         
         Order order = new Order(
-            orderId,
+            null, // Firestore will generate the ID
             userId,
             new ArrayList<>(cartItems),
             totalAmount,
@@ -155,35 +149,50 @@ public class OrderConfirmationActivity extends AppCompatActivity {
             deliveryAddress
         );
 
-        // Save order to Firebase
-        if (orderId != null) {
-            FirebaseHelper.getOrdersRef().child(orderId).setValue(order)
-                .addOnSuccessListener(aVoid -> {
-                    // Also save to user's orders
-                    FirebaseHelper.getUserOrdersRef(userId).child(orderId).setValue(order)
-                        .addOnSuccessListener(aVoid1 -> {
-                            // Clear cart after successful order
-                            clearCart(userId);
-                        })
-                        .addOnFailureListener(e -> {
-                            progressBar.setVisibility(View.GONE);
-                            btnPlaceOrder.setEnabled(true);
-                            Toast.makeText(OrderConfirmationActivity.this, 
-                                "Failed to save order", Toast.LENGTH_SHORT).show();
-                        });
-                })
-                .addOnFailureListener(e -> {
-                    progressBar.setVisibility(View.GONE);
-                    btnPlaceOrder.setEnabled(true);
-                    Toast.makeText(OrderConfirmationActivity.this, 
-                        "Failed to place order", Toast.LENGTH_SHORT).show();
-                });
-        }
+        // Save order to Firestore
+        FirebaseHelper.getOrdersCollection()
+            .add(order)
+            .addOnSuccessListener(documentReference -> {
+                String orderId = documentReference.getId();
+                order.setOrderId(orderId);
+                
+                // Update the order with the generated ID
+                documentReference.update("orderId", orderId)
+                    .addOnSuccessListener(aVoid -> {
+                        // Also save to user's orders collection
+                        FirebaseHelper.getUserOrdersCollection(userId)
+                            .document(orderId)
+                            .set(order)
+                            .addOnSuccessListener(aVoid1 -> {
+                                // Clear cart after successful order
+                                clearCart(userId);
+                            })
+                            .addOnFailureListener(e -> {
+                                progressBar.setVisibility(View.GONE);
+                                btnPlaceOrder.setEnabled(true);
+                                Toast.makeText(OrderConfirmationActivity.this, 
+                                    "Failed to save order to user profile", Toast.LENGTH_SHORT).show();
+                            });
+                    });
+            })
+            .addOnFailureListener(e -> {
+                progressBar.setVisibility(View.GONE);
+                btnPlaceOrder.setEnabled(true);
+                Toast.makeText(OrderConfirmationActivity.this, 
+                    "Failed to place order: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
     }
 
     private void clearCart(String userId) {
-        FirebaseHelper.getUserCartRef(userId).removeValue()
-            .addOnSuccessListener(aVoid -> {
+        // Clear all items from user's cart collection
+        FirebaseHelper.getUserCartCollection(userId)
+            .get()
+            .addOnSuccessListener(querySnapshot -> {
+                // Delete all cart items
+                for (com.google.firebase.firestore.QueryDocumentSnapshot document : querySnapshot) {
+                    document.getReference().delete();
+                }
+                
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(OrderConfirmationActivity.this, 
                     "Order placed successfully!", Toast.LENGTH_LONG).show();
@@ -198,7 +207,8 @@ public class OrderConfirmationActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 btnPlaceOrder.setEnabled(true);
                 Toast.makeText(OrderConfirmationActivity.this, 
-                    "Order placed but failed to clear cart", Toast.LENGTH_SHORT).show();
+                    "Order placed but failed to clear cart: " + e.getMessage(), 
+                    Toast.LENGTH_SHORT).show();
             });
     }
 }
