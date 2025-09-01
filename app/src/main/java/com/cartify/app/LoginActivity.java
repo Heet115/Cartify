@@ -13,7 +13,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cartify.app.utils.FirebaseHelper;
+import com.cartify.app.utils.UserDataHelper;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 /**
  * Login Activity for user authentication
@@ -25,17 +27,19 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvRegister, tvForgotPassword;
     private ProgressBar progressBar;
     private FirebaseAuth mAuth;
+    private UserDataHelper userDataHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Initialize Firebase Auth
+        // Initialize Firebase Auth and UserDataHelper
         mAuth = FirebaseHelper.getAuth();
+        userDataHelper = new UserDataHelper(this);
 
-        // Check if user is already logged in
-        if (FirebaseHelper.isUserLoggedIn()) {
+        // Check if user is already logged in (check both Firebase and local storage)
+        if (FirebaseHelper.isUserLoggedIn() && userDataHelper.isUserLoggedIn()) {
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
             return;
@@ -109,7 +113,12 @@ public class LoginActivity extends AppCompatActivity {
                 btnLogin.setEnabled(true);
 
                 if (task.isSuccessful()) {
-                    // Login successful - update last login time
+                    // Login successful - save user data locally
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    if (user != null) {
+                        saveUserDataLocally(user, email);
+                    }
+                    
                     updateLastLoginTime();
                     Toast.makeText(LoginActivity.this, "Login successful", 
                         Toast.LENGTH_SHORT).show();
@@ -124,7 +133,22 @@ public class LoginActivity extends AppCompatActivity {
             });
     }
 
+    private void saveUserDataLocally(FirebaseUser user, String email) {
+        // Save user session data to local storage
+        String userId = user.getUid();
+        String displayName = user.getDisplayName() != null ? user.getDisplayName() : "";
+        
+        userDataHelper.saveUserSession(userId, email, displayName);
+        
+        // Mark as not first time user if they're logging in
+        userDataHelper.setFirstTimeUser(false);
+    }
+    
     private void updateLastLoginTime() {
+        // Update last login time in local storage
+        userDataHelper.updateLastLoginTime();
+        
+        // Also update in Firebase
         String userId = FirebaseHelper.getCurrentUserId();
         if (userId != null) {
             String currentTime = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", 

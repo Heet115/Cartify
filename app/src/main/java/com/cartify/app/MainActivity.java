@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cartify.app.adapters.ProductAdapter;
 import com.cartify.app.models.Product;
 import com.cartify.app.utils.FirebaseHelper;
+import com.cartify.app.utils.UserDataHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,18 +36,15 @@ public class MainActivity extends AppCompatActivity {
     private List<Product> productList;
     private ProgressBar progressBar;
     private BottomNavigationView bottomNavigation;
+    private UserDataHelper userDataHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Check if user is logged in
-        if (!FirebaseHelper.isUserLoggedIn()) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-            return;
-        }
+        // Initialize UserDataHelper
+        userDataHelper = new UserDataHelper(this);
 
         initViews();
         setupRecyclerView();
@@ -134,7 +132,9 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, OrdersActivity.class));
             return true;
         } else if (itemId == R.id.action_logout) {
+            // Logout from both Firebase and local storage
             FirebaseHelper.getAuth().signOut();
+            userDataHelper.logoutUser();
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return true;

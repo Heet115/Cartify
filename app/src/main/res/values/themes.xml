@@ -11,4 +11,11 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+    
+    <style name="Theme.Cartify.Splash" parent="Theme.Cartify.NoActionBar">
+        <item name="android:windowBackground">@color/primary_color</item>
+        <item name="android:statusBarColor">@color/primary_color</item>
+        <item name="android:navigationBarColor">@color/primary_color</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
 </resources>

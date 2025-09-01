@@ -15,16 +15,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Cartify">
         
-        <!-- Login Activity as launcher -->
+        <!-- Splash Activity as launcher -->
         <activity
-            android:name=".LoginActivity"
+            android:name=".SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.Cartify.NoActionBar">
+            android:theme="@style/Theme.Cartify.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <!-- Login Activity -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Cartify.NoActionBar" />
         
         <!-- Register Activity -->
         <activity
