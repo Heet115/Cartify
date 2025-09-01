@@ -1,6 +1,7 @@
 package com.cartify.app.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cartify.app.OrderDetailActivity;
 import com.cartify.app.R;
 import com.cartify.app.models.Order;
 
@@ -63,6 +65,13 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                 break;
         }
         holder.tvStatus.setTextColor(statusColor);
+        
+        // Set click listener to open order details
+        holder.cardView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, OrderDetailActivity.class);
+            intent.putExtra("order_id", order.getOrderId());
+            context.startActivity(intent);
+        });
     }
 
     @Override

@@ -66,6 +66,12 @@
             android:name=".OrdersActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
+        
+        <!-- Order Detail Activity -->
+        <activity
+            android:name=".OrderDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".OrdersActivity" />
             
     </application>
 

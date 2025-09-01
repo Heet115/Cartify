@@ -53,73 +53,255 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ivProfileIcon" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilName"
+            <!-- User Info Section -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvUserInfo"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:hint="Full Name"
+                android:layout_marginTop="24dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvProfileTitle">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPersonName" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    <TextView
+                        android:id="@+id/tvEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:text="email@example.com" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilPhone"
+                    <TextView
+                        android:id="@+id/tvMemberSince"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp"
+                        android:text="Member since: 2024-01-01" />
+
+                    <TextView
+                        android:id="@+id/tvLastLogin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp"
+                        android:text="Last login: 2024-01-15" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Display Mode -->
+            <LinearLayout
+                android:id="@+id/llDisplayMode"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Phone Number"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tilName">
+                app:layout_constraintTop_toBottomOf="@+id/cvUserInfo">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etPhone"
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="phone" />
+                    android:text="Personal Information"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilAddress"
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Full Name"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvNameDisplay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textSize="16sp"
+                        android:text="Not provided" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Phone Number"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvPhoneDisplay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textSize="16sp"
+                        android:text="Not provided" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Address"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvAddressDisplay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textSize="16sp"
+                        android:text="Not provided" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Edit Mode -->
+            <LinearLayout
+                android:id="@+id/llEditMode"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Address"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tilPhone">
+                app:layout_constraintTop_toBottomOf="@+id/cvUserInfo">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etAddress"
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="top"
-                    android:inputType="textMultiLine"
-                    android:lines="3"
-                    android:maxLines="5" />
+                    android:text="Edit Personal Information"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="Full Name">
 
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="Phone Number">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="phone" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="Address">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="top"
+                        android:inputType="textMultiLine"
+                        android:lines="3"
+                        android:maxLines="5" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <!-- Buttons -->
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSaveProfile"
+                android:id="@+id/btnEditProfile"
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_marginTop="32dp"
-                android:text="Save Profile"
+                android:text="Edit Profile"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tilAddress" />
+                app:layout_constraintTop_toBottomOf="@+id/llDisplayMode" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/llEditMode">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancelEdit"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:text="Cancel"
+                    android:textSize="16sp"
+                    android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSaveProfile"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Save Profile"
+                    android:textSize="16sp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,11 +19,14 @@ import com.cartify.app.utils.FirebaseHelper;
  */
 public class ProfileActivity extends AppCompatActivity {
 
+    private TextView tvEmail, tvMemberSince, tvLastLogin;
+    private TextView tvNameDisplay, tvPhoneDisplay, tvAddressDisplay;
     private EditText etName, etPhone, etAddress;
-    private Button btnSaveProfile;
+    private Button btnEditProfile, btnSaveProfile, btnCancelEdit;
     private ProgressBar progressBar;
     
     private UserProfile currentProfile;
+    private boolean isEditMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,13 +39,32 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        // Display TextViews
+        tvEmail = findViewById(R.id.tvEmail);
+        tvMemberSince = findViewById(R.id.tvMemberSince);
+        tvLastLogin = findViewById(R.id.tvLastLogin);
+        tvNameDisplay = findViewById(R.id.tvNameDisplay);
+        tvPhoneDisplay = findViewById(R.id.tvPhoneDisplay);
+        tvAddressDisplay = findViewById(R.id.tvAddressDisplay);
+        
+        // Edit TextInputs
         etName = findViewById(R.id.etName);
         etPhone = findViewById(R.id.etPhone);
         etAddress = findViewById(R.id.etAddress);
+        
+        // Buttons
+        btnEditProfile = findViewById(R.id.btnEditProfile);
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
+        btnCancelEdit = findViewById(R.id.btnCancelEdit);
         progressBar = findViewById(R.id.progressBar);
 
+        // Set click listeners
+        btnEditProfile.setOnClickListener(v -> enableEditMode());
         btnSaveProfile.setOnClickListener(v -> saveProfile());
+        btnCancelEdit.setOnClickListener(v -> cancelEdit());
+        
+        // Initially show display mode
+        setDisplayMode();
     }
 
     private void setupToolbar() {
@@ -85,6 +108,26 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void displayProfile() {
         if (currentProfile != null) {
+            // Display user information
+            tvEmail.setText(currentProfile.getEmail() != null ? currentProfile.getEmail() : "No email");
+            tvMemberSince.setText("Member since: " + (currentProfile.getCreatedAt() != null ? 
+                currentProfile.getCreatedAt().substring(0, 10) : "Unknown"));
+            tvLastLogin.setText("Last login: " + (currentProfile.getLastLoginAt() != null ? 
+                currentProfile.getLastLoginAt() : "Unknown"));
+            
+            // Display profile details
+            String name = currentProfile.getName() != null && !currentProfile.getName().isEmpty() ? 
+                currentProfile.getName() : "Not provided";
+            String phone = currentProfile.getPhone() != null && !currentProfile.getPhone().isEmpty() ? 
+                currentProfile.getPhone() : "Not provided";
+            String address = currentProfile.getAddress() != null && !currentProfile.getAddress().isEmpty() ? 
+                currentProfile.getAddress() : "Not provided";
+                
+            tvNameDisplay.setText(name);
+            tvPhoneDisplay.setText(phone);
+            tvAddressDisplay.setText(address);
+            
+            // Set edit text values
             etName.setText(currentProfile.getName() != null ? currentProfile.getName() : "");
             etPhone.setText(currentProfile.getPhone() != null ? currentProfile.getPhone() : "");
             etAddress.setText(currentProfile.getAddress() != null ? currentProfile.getAddress() : "");
@@ -125,6 +168,8 @@ public class ProfileActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 btnSaveProfile.setEnabled(true);
                 Toast.makeText(this, "Profile saved successfully", Toast.LENGTH_SHORT).show();
+                displayProfile();
+                setDisplayMode();
             })
             .addOnFailureListener(e -> {
                 progressBar.setVisibility(View.GONE);
@@ -132,5 +177,38 @@ public class ProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, "Failed to save profile: " + e.getMessage(), 
                     Toast.LENGTH_SHORT).show();
             });
+    }
+    
+    private void enableEditMode() {
+        isEditMode = true;
+        setEditMode();
+    }
+    
+    private void cancelEdit() {
+        isEditMode = false;
+        displayProfile(); // Reset to original values
+        setDisplayMode();
+    }
+    
+    private void setDisplayMode() {
+        // Show display views
+        findViewById(R.id.llDisplayMode).setVisibility(View.VISIBLE);
+        findViewById(R.id.llEditMode).setVisibility(View.GONE);
+        
+        // Show edit button, hide save/cancel buttons
+        btnEditProfile.setVisibility(View.VISIBLE);
+        btnSaveProfile.setVisibility(View.GONE);
+        btnCancelEdit.setVisibility(View.GONE);
+    }
+    
+    private void setEditMode() {
+        // Show edit views
+        findViewById(R.id.llDisplayMode).setVisibility(View.GONE);
+        findViewById(R.id.llEditMode).setVisibility(View.VISIBLE);
+        
+        // Hide edit button, show save/cancel buttons
+        btnEditProfile.setVisibility(View.GONE);
+        btnSaveProfile.setVisibility(View.VISIBLE);
+        btnCancelEdit.setVisibility(View.VISIBLE);
     }
 }
